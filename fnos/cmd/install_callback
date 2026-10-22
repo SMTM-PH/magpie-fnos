@@ -19,7 +19,7 @@ if [ -n "${key}" ]; then
     fail "两次输入的访问密钥不一致，请重新安装并确认密钥。"
   fi
   if ! valid_key "${key}"; then
-    fail "访问密钥格式不正确：需要 16–128 位，仅支持字母、数字和 - . _ ~。"
+    fail "访问密钥格式不正确：至少 6 位，仅支持英文字母和数字。"
   fi
   write_key "${key}"
   echo "Magpie 管理页访问密钥已保存。"
@@ -28,7 +28,7 @@ else
   if [ -f "${KEY_FILE}" ]; then
     existing=$(head -n 1 "${KEY_FILE}" | tr -d '\r\n')
   fi
-  if valid_key "${existing}"; then
+  if valid_stored_key "${existing}"; then
     echo "已保留原有的 Magpie 管理页访问密钥。"
   else
     generated=$(new_key)

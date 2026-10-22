@@ -1,0 +1,16 @@
+diff --git a/internal/gui/web.go b/internal/gui/web.go
+index 36728a8..6ed2227 100644
+--- a/internal/gui/web.go
++++ b/internal/gui/web.go
+@@ -144,8 +144,9 @@ func (w *Web) Wait() error {
+ }
+ 
+ // webKeyMin is the shortest MAGPIE_WEB_KEY taken: it is all that stands
+-// between the network and the keys behind the page.
+-const webKeyMin = 16
++// between the network and the keys behind the page. The fnOS package lowers
++// upstream's 16 to 6; prefer 12 or more when the page is reachable on a LAN.
++const webKeyMin = 6
+ 
+ // webCookieAge is how long a browser keeps a fixed key's cookie (the most
+ // Chrome allows); a run's own key lives in a cookie that goes with the

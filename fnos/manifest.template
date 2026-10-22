@@ -13,4 +13,4 @@ desktop_applaunchname = magpie.main
 service_port          = 3430
 checkport             = true
 ctl_stop              = true
-changelog             = 基于上游 v0.1.1318 的飞牛 fnOS 适配版：Web 管理页、本地 AI 网关、插件支持、内置 CA 根证书与安装时设置访问密钥。
+changelog             = 基于上游 v0.1.1318 的飞牛 fnOS 适配版：访问密钥最低 6 位（仅字母和数字），Web 管理页、本地 AI 网关、插件支持与内置 CA 根证书。

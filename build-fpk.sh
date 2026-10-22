@@ -7,7 +7,7 @@ PACKAGE="${ROOT}/fnos"
 OUT="${ROOT}/dist"
 STAGE_ROOT="${ROOT}/build/fpk-stage"
 BIN_DIR="${ROOT}/build"
-VERSION="${VERSION:-0.1.1318}"
+VERSION="${VERSION:-0.1.1319}"
 UPSTREAM_TAG="${UPSTREAM_TAG:-v${VERSION}}"
 DOCKER_IMAGE="${DOCKER_IMAGE:-debian:12-slim}"
 FNPACK_LINUX="${ROOT}/tools/fnpack-linux-amd64"
@@ -23,6 +23,12 @@ if [ ! -f "${SOURCE}/go.mod" ]; then
   fi
   echo "==> 获取上游 magpie ${UPSTREAM_TAG}"
   git clone --depth 1 --branch "${UPSTREAM_TAG}" https://github.com/yetone/magpie.git "${SOURCE}"
+fi
+
+PATCH_FILE="${ROOT}/patches/fnos-web-key.patch"
+if [ -f "${PATCH_FILE}" ] && ! grep -q 'const webKeyMin = 6' "${SOURCE}/internal/gui/web.go"; then
+  echo "==> 应用 fnOS 访问密钥补丁（最少 6 位，字母+数字）"
+  git -C "${SOURCE}" apply "${PATCH_FILE}"
 fi
 
 if [ ! -f "${FNPACK_LINUX}" ]; then

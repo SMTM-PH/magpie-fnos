@@ -90,7 +90,13 @@ rotate_log() {
 }
 
 valid_key() {
-  printf '%s' "$1" | grep -Eq '^[A-Za-z0-9._~-]{16,128}$'
+  printf '%s' "$1" | grep -Eq '^[A-Za-z0-9]{6,128}$'
+}
+
+# valid_stored_key also accepts - . _ ~ so a key set by an older package
+# keeps working after an upgrade; new keys are restricted by valid_key.
+valid_stored_key() {
+  printf '%s' "$1" | grep -Eq '^[A-Za-z0-9._~-]{6,128}$'
 }
 
 new_key() {
@@ -107,7 +113,7 @@ write_key() {
 web_key() {
   if [ -f "${KEY_FILE}" ]; then
     existing=$(head -n 1 "${KEY_FILE}" | tr -d '\r\n')
-    if valid_key "${existing}"; then
+    if valid_stored_key "${existing}"; then
       printf '%s' "${existing}"
       return 0
     fi

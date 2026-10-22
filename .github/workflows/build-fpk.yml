@@ -9,7 +9,7 @@ on:
       version:
         description: "fnOS package version (X.Y.Z)"
         required: true
-        default: "0.1.1318"
+        default: "0.1.1319"
       upstream_tag:
         description: "Upstream yetone/magpie tag"
         required: true
@@ -29,7 +29,9 @@ jobs:
         run: |
           if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
             echo "version=${GITHUB_REF_NAME#v}" >> "${GITHUB_OUTPUT}"
-            echo "upstream=${GITHUB_REF_NAME}" >> "${GITHUB_OUTPUT}"
+            # Packaging releases may be newer than upstream; this file pins
+            # the upstream source tag used by the build.
+            echo "upstream=$(cat .github/upstream-tag)" >> "${GITHUB_OUTPUT}"
           else
             echo "version=${{ inputs.version }}" >> "${GITHUB_OUTPUT}"
             echo "upstream=${{ inputs.upstream_tag }}" >> "${GITHUB_OUTPUT}"
