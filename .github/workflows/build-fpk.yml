@@ -9,7 +9,7 @@ on:
       version:
         description: "fnOS package version (X.Y.Z)"
         required: true
-        default: "0.1.1319"
+        default: "0.1.1320"
       upstream_tag:
         description: "Upstream yetone/magpie tag"
         required: true
@@ -50,12 +50,21 @@ jobs:
           chmod +x build-fpk.sh scripts/docker-fnpack.sh
           ./build-fpk.sh
 
+      - name: Generate update feed
+        run: |
+          version="${{ steps.vars.outputs.version }}"
+          cat > dist/update-feed.json <<EOF
+          {"version":"${version}","notes":"飞牛 FPK ${version} 已发布。请在飞牛应用中心安装新的 FPK。","url":"https://github.com/SMTM-PH/magpie-fnos/releases/tag/v${version}","assets":{}}
+          EOF
+          cat dist/update-feed.json
+
       - uses: actions/upload-artifact@v4
         with:
           name: magpie-fpk
           path: |
             dist/*.fpk
             dist/SHA256SUMS.txt
+            dist/update-feed.json
           if-no-files-found: error
 
       - name: Publish release
@@ -65,4 +74,5 @@ jobs:
           files: |
             dist/*.fpk
             dist/SHA256SUMS.txt
+            dist/update-feed.json
           generate_release_notes: true

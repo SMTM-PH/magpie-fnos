@@ -31,6 +31,8 @@ LOG_DIR="${PKG_VAR}/logs"
 RUN_DIR="${PKG_VAR}/run"
 KEY_FILE="${PKG_VAR}/web.key"
 PUBLIC_URL_FILE="${PKG_VAR}/public-url"
+UPDATE_FEED_FILE="${PKG_VAR}/update-feed-url"
+DEFAULT_UPDATE_FEED="https://github.com/SMTM-PH/magpie-fnos/releases/latest/download/update-feed.json"
 APP_CA="${APP_DEST}/certs/cacert.pem"
 USER_CA="${PKG_VAR}/ca-cert.pem"
 CA_BUNDLE="${RUN_DIR}/ca-bundle.pem"
@@ -202,6 +204,19 @@ export_runtime_env() {
   export XDG_STATE_HOME="${STATE_HOME}"
   export MAGPIE_ADDR="0.0.0.0:${GATEWAY_PORT}"
   export MAGPIE_WEB_KEY="${key}"
+  # The FPK owns the binary. The update check reads our release feed and
+  # opens the FPK download page instead of replacing the binary.
+  export MAGPIE_FNOS_PACKAGE=1
+  update_feed="${DEFAULT_UPDATE_FEED}"
+  if [ -f "${UPDATE_FEED_FILE}" ]; then
+    custom_feed=$(head -n 1 "${UPDATE_FEED_FILE}" | tr -d '\r\n') || custom_feed=""
+    case "${custom_feed}" in
+      http://*|https://*) update_feed="${custom_feed}" ;;
+      "") ;;
+      *) log_msg "ignoring invalid update feed: ${custom_feed}" ;;
+    esac
+  fi
+  export MAGPIE_UPDATE_FEED="${update_feed}"
 
   # Use the bundled Mozilla roots (plus an optional user CA) so HTTPS works
   # even when the NAS image ships no ca-certificates, and so Bun, curl and
@@ -232,6 +247,6 @@ ensure_auto_update_off() {
       XDG_CACHE_HOME="${CACHE_HOME}" \
       XDG_DATA_HOME="${DATA_HOME}" \
       XDG_STATE_HOME="${STATE_HOME}" \
-      "${MAGPIE_BIN}" update auto off >> "${LIFECYCLE_LOG}" 2>&1 \
-    || log_msg "could not turn Magpie automatic updates off"
+      "${MAGPIE_BIN}" update auto off notify >> "${LIFECYCLE_LOG}" 2>&1 \
+    || log_msg "could not configure Magpie automatic updates"
 }

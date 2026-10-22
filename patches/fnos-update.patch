@@ -1,0 +1,29 @@
+diff --git a/internal/gui/assets/app.js b/internal/gui/assets/app.js
+index 180bcf6..63dbb52 100644
+--- a/internal/gui/assets/app.js
++++ b/internal/gui/assets/app.js
+@@ -4193,6 +4193,7 @@ async function backAsNew(was) {
+ // the Mac, a folder it may not write to, such as C:\ (#1277), or a
+ // container, whose image is what gets updated.
+ function updateStuck(u) {
++  if (u.stuck === "fnos") return "Magpie 以飞牛 FPK 安装，不能自更新；请打开下载页获取新的 FPK，并在飞牛应用中心安装。Installed as a fnOS FPK: download the new FPK and install it in App Center.";
+   if (u.stuck === "container") return t("magpie runs in a container, so it can't update itself; pull the new image (docker pull ghcr.io/yetone/magpie:latest) and recreate the container.");
+   if (u.stuck === "not-writable") return t("magpie can't write to the folder it runs from ({dir}), so it can't update itself; move it to a folder you can write to and open it from there.", { dir: u.stuckDir || "" });
+   return u.stuck === "translocated"
+diff --git a/internal/gui/update.go b/internal/gui/update.go
+index f6a70d0..185c2a7 100644
+--- a/internal/gui/update.go
++++ b/internal/gui/update.go
+@@ -163,6 +163,12 @@ func (u *updater) place(goos string, gui bool) {
+ // says why it can't be (stuck).
+ func (u *updater) placeExe(exe string) {
+ 	u.exeDir = filepath.Dir(exe)
++	if os.Getenv("MAGPIE_FNOS_PACKAGE") == "1" {
++		// The fnOS FPK owns the binary; updates come as a new FPK from our
++		// release page, never by replacing the file behind App Center's back.
++		u.stuck = "fnos"
++		return
++	}
+ 	if u.stuck = exeStuck(u.exeDir); u.stuck != "" {
+ 		return
+ 	}

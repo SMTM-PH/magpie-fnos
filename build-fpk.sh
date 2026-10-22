@@ -7,7 +7,7 @@ PACKAGE="${ROOT}/fnos"
 OUT="${ROOT}/dist"
 STAGE_ROOT="${ROOT}/build/fpk-stage"
 BIN_DIR="${ROOT}/build"
-VERSION="${VERSION:-0.1.1319}"
+VERSION="${VERSION:-0.1.1320}"
 UPSTREAM_TAG="${UPSTREAM_TAG:-v${VERSION}}"
 DOCKER_IMAGE="${DOCKER_IMAGE:-debian:12-slim}"
 FNPACK_LINUX="${ROOT}/tools/fnpack-linux-amd64"
@@ -28,6 +28,12 @@ fi
 PATCH_FILE="${ROOT}/patches/fnos-web-key.patch"
 if [ -f "${PATCH_FILE}" ] && ! grep -q 'const webKeyMin = 6' "${SOURCE}/internal/gui/web.go"; then
   echo "==> 应用 fnOS 访问密钥补丁（最少 6 位，字母+数字）"
+  git -C "${SOURCE}" apply "${PATCH_FILE}"
+fi
+
+PATCH_FILE="${ROOT}/patches/fnos-update.patch"
+if [ -f "${PATCH_FILE}" ] && ! grep -q 'MAGPIE_FNOS_PACKAGE' "${SOURCE}/internal/gui/update.go"; then
+  echo "==> 应用 fnOS 更新检查补丁（提示 FPK 下载页）"
   git -C "${SOURCE}" apply "${PATCH_FILE}"
 fi
 

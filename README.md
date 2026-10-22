@@ -2,7 +2,7 @@
 
 [![build-fpk](https://github.com/SMTM-PH/magpie-fnos/actions/workflows/build-fpk.yml/badge.svg)](https://github.com/SMTM-PH/magpie-fnos/actions/workflows/build-fpk.yml)
 
-把 [yetone/magpie](https://github.com/yetone/magpie)（上游 v0.1.1318）适配为飞牛 fnOS 的 FPK 应用：在 NAS 上以无界面服务运行 Web 管理页和 AI 网关，供局域网内的 Claude Code、Codex、Gemini CLI 等客户端统一使用模型。当前打包版本 `0.1.1319`，包含访问密钥最低 6 位的适配。
+把 [yetone/magpie](https://github.com/yetone/magpie)（上游 v0.1.1318）适配为飞牛 fnOS 的 FPK 应用：在 NAS 上以无界面服务运行 Web 管理页和 AI 网关，供局域网内的 Claude Code、Codex、Gemini CLI 等客户端统一使用模型。当前打包版本 `0.1.1320`，包含访问密钥最低 6 位、应用内检查更新指向本仓库 Release 的适配。
 
 仓库：https://github.com/SMTM-PH/magpie-fnos
 
@@ -20,8 +20,8 @@
 
 | 文件 | 适用设备 |
 | --- | --- |
-| `dist/magpie_0.1.1319_x86.fpk` | x86_64 飞牛设备 |
-| `dist/magpie_0.1.1319_arm.fpk` | ARM64 / aarch64 飞牛设备 |
+| `dist/magpie_0.1.1320_x86.fpk` | x86_64 飞牛设备 |
+| `dist/magpie_0.1.1320_arm.fpk` | ARM64 / aarch64 飞牛设备 |
 | `dist/SHA256SUMS.txt` | 校验文件 |
 
 ```bash
@@ -34,7 +34,7 @@ cd dist && sha256sum -c SHA256SUMS.txt
 - **3425/tcp**：AI 网关，兼容 OpenAI Chat/Responses、Anthropic Messages 和 Gemini。
 - 以专用用户 `magpie_fnos` 运行，不使用 root。
 - 数据、密钥和日志保存在应用数据目录，升级/重装不丢失。
-- 安装时关闭 magpie 自带自动更新，版本统一由 FPK 升级管理。
+- 安装时关闭 magpie 自动更新；应用内「检查」只检查 magpie-fnos 的 Release，并提示到下载页获取新 FPK，不替换自身二进制。
 
 ## 安装
 
@@ -140,7 +140,7 @@ sudo /var/apps/magpie/cmd/main status   # 0=运行，3=未运行
 - 管理页入口默认仅管理员可见，并有访问密钥保护；该页面可以查看和修改模型 API Key，请勿泄露密钥。
 - 3425 网关从其他机器访问时必须使用网关密钥，但仍建议只开放在局域网内。
 - 服务使用 HTTP。不要把 3425/3430 直接暴露到公网；远程使用请走 VPN，或在前置反向代理上配置 TLS。
-- 如果开启了 magpie 的自动更新，它可能绕过应用中心替换自身二进制。建议保持关闭，通过新 FPK 升级。
+- 应用内更新检查已改为只提示 FPK 下载页，不会自替换；实际升级请通过应用中心安装新 FPK。
 
 ## 重新构建
 
@@ -149,7 +149,7 @@ sudo /var/apps/magpie/cmd/main status   # 0=运行，3=未运行
 ```bash
 git clone https://github.com/SMTM-PH/magpie-fnos.git
 cd magpie-fnos
-VERSION=0.1.1319 UPSTREAM_TAG=v0.1.1318 ./build-fpk.sh
+VERSION=0.1.1320 UPSTREAM_TAG=v0.1.1318 ./build-fpk.sh
 ```
 
 首次构建会自动克隆上游 `yetone/magpie` 的 `v0.1.1318` tag 到 `magpie/`（已加入 `.gitignore`），并应用 `patches/fnos-web-key.patch`（访问密钥最少 6 位）。脚本会：
@@ -180,13 +180,30 @@ GitHub Actions 工作流 [`.github/workflows/build-fpk.yml`](.github/workflows/b
 - 上游升级时，同时更新 `.github/upstream-tag` 为新的上游 tag。
 
 ```bash
-git tag v0.1.1319
-git push origin v0.1.1319
+git tag v0.1.1320
+git push origin v0.1.1320
+```
+
+## 应用内检查更新
+
+「设置 → 关于 → 检查」现在查询本仓库 Release 里的 `update-feed.json`：
+
+- 有新 FPK：显示版本和更新说明，点「下载」打开 GitHub Release 页面；
+- 不会下载或替换 magpie 二进制，也不会改变应用中心里的版本；
+- 自动检查仍然关闭，只在你点击「检查」时查询；
+- 需要 NAS 能访问 GitHub。不能访问时，可以写入镜像后的 feed 地址并重启：
+
+```bash
+APP_DATA=$(ls -d /vol*/@appdata/magpie | head -1)
+echo 'https://your-mirror.example/magpie-fnos/update-feed.json' \
+  | sudo tee "$APP_DATA/update-feed-url"
+sudo /var/apps/magpie/cmd/main stop
+sudo /var/apps/magpie/cmd/main start
 ```
 
 ## 更新 NAS 上的应用
 
-下载新 Release 中的 FPK，在飞牛应用中心「手动安装」即可升级，应用数据保留。当前包**未内置**自动更新；如需要，可基于 Release 增加定时任务，用 `appcenter-cli install-fpk` 完成升级。
+从 Release 下载新 FPK，在飞牛应用中心「手动安装」即可升级，应用数据保留。更新检查只负责提示，不会自动安装 FPK。
 
 ## 目录结构
 
@@ -209,6 +226,7 @@ dist/                  生成的 FPK
 - 管理页无密钥 401、带密钥 303 并写入 Cookie；真实浏览器登录成功，iframe 内自动登录成功。
 - 网关无密钥 401；创建网关密钥后 `/v1/models` 返回 200。
 - 6 位密钥 `abc123` 安装、启动、登录成功；5 位密钥和含 `-` 的新密钥在安装阶段被拒绝；旧版含 `- . _ ~` 的密钥升级后仍可登录。
+- 应用内检查更新：本地 feed 返回 `9.9.9` 时，接口返回 `state=available`、`stuck=fnos`，未下载二进制；界面显示“Magpie 以飞牛 FPK 安装…”提示，点击打开 Release 页。
 - 在**没有 `ca-certificates`** 的 Debian 12 容器中，使用包内 CA 成功安装 `@magpie-community/opencode-zen-free-auth`（自动下载 Bun 1.4.2，发现 8 个模型），插件页显示“已安装 · 1”。
 - 自定义 `ca-cert.pem` 会与内置根证书合并；移除后恢复。
 - 卸载默认保留数据；选择删除时仅清理 `/vol*/@appdata/magpie`。
