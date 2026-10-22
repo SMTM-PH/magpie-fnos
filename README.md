@@ -152,7 +152,7 @@ cd magpie-fnos
 VERSION=0.1.1320 UPSTREAM_TAG=v0.1.1318 ./build-fpk.sh
 ```
 
-首次构建会自动克隆上游 `yetone/magpie` 的 `v0.1.1318` tag 到 `magpie/`（已加入 `.gitignore`），并应用 `patches/fnos-web-key.patch`（访问密钥最少 6 位）。脚本会：
+首次构建会自动克隆上游 `yetone/magpie` 的 `v0.1.1318` tag 到 `magpie/`（已加入 `.gitignore`），并依次应用 `patches/fnos-web-key.patch`（访问密钥最少 6 位）和 `patches/fnos-update.patch`（检查更新指向 FPK Release）。脚本会：
 
 1. 获取上游源码并应用 fnOS 补丁（已存在且已打补丁则跳过）；
 2. 用 `CGO_ENABLED=0` 交叉编译 `linux/amd64`、`linux/arm64`（`nogui` 版本，无 GTK/WebView 依赖）；
@@ -165,10 +165,10 @@ VERSION=0.1.1320 UPSTREAM_TAG=v0.1.1318 ./build-fpk.sh
 
 ```bash
 # 上游新版本
-VERSION=0.1.1320 UPSTREAM_TAG=v0.1.1320 ./build-fpk.sh
+VERSION=0.1.1321 UPSTREAM_TAG=v0.1.1321 ./build-fpk.sh
 
 # 上游不变，仅重新打包（版本号必须提高，飞牛才会按升级处理）
-VERSION=0.1.1320 UPSTREAM_TAG=v0.1.1318 ./build-fpk.sh
+VERSION=0.1.1321 UPSTREAM_TAG=v0.1.1318 ./build-fpk.sh
 ```
 
 ### 自动构建与发布
@@ -180,8 +180,8 @@ GitHub Actions 工作流 [`.github/workflows/build-fpk.yml`](.github/workflows/b
 - 上游升级时，同时更新 `.github/upstream-tag` 为新的上游 tag。
 
 ```bash
-git tag v0.1.1320
-git push origin v0.1.1320
+git tag v0.1.1321
+git push origin v0.1.1321
 ```
 
 ## 应用内检查更新
@@ -227,6 +227,7 @@ dist/                  生成的 FPK
 - 网关无密钥 401；创建网关密钥后 `/v1/models` 返回 200。
 - 6 位密钥 `abc123` 安装、启动、登录成功；5 位密钥和含 `-` 的新密钥在安装阶段被拒绝；旧版含 `- . _ ~` 的密钥升级后仍可登录。
 - 应用内检查更新：本地 feed 返回 `9.9.9` 时，接口返回 `state=available`、`stuck=fnos`，未下载二进制；界面显示“Magpie 以飞牛 FPK 安装…”提示，点击打开 Release 页。
+- 默认 GitHub feed（`releases/latest/download/update-feed.json?lang=zh`）可访问；v0.1.1320 检查返回 `state=latest`。
 - 在**没有 `ca-certificates`** 的 Debian 12 容器中，使用包内 CA 成功安装 `@magpie-community/opencode-zen-free-auth`（自动下载 Bun 1.4.2，发现 8 个模型），插件页显示“已安装 · 1”。
 - 自定义 `ca-cert.pem` 会与内置根证书合并；移除后恢复。
 - 卸载默认保留数据；选择删除时仅清理 `/vol*/@appdata/magpie`。
