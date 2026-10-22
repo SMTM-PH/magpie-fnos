@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+
+. "$(dirname -- "$0")/common.sh"
+
+pid=$(read_pid)
+if [ -n "${pid}" ] && is_our_process "${pid}" && healthcheck; then
+  exit 0
+fi
+exit 3

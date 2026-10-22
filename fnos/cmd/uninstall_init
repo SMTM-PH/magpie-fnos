@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+CMD_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+
+if [ -x "${CMD_DIR}/stop" ]; then
+  if ! "${CMD_DIR}/stop" >> "${TRIM_TEMP_LOGFILE:-/dev/null}" 2>&1; then
+    fail_message="停止 Magpie 失败，已中止卸载。"
+    if [ -n "${TRIM_TEMP_LOGFILE:-}" ]; then
+      printf '%s\n' "${fail_message}" > "${TRIM_TEMP_LOGFILE}"
+    fi
+    echo "${fail_message}" >&2
+    exit 1
+  fi
+fi
+
+exit 0

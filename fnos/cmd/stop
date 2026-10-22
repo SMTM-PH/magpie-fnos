@@ -1,0 +1,33 @@
+#!/bin/sh
+set -eu
+
+. "$(dirname -- "$0")/common.sh"
+
+pid=$(read_pid)
+if [ -z "${pid}" ] || ! is_our_process "${pid}"; then
+  rm -f "${PID_FILE}"
+  log_msg "停止请求：Magpie 未运行"
+  exit 0
+fi
+
+log_msg "正在停止 Magpie，PID ${pid}"
+kill -TERM "${pid}" 2>/dev/null || true
+count=0
+while [ "${count}" -lt 20 ] && process_alive "${pid}"; do
+  sleep 1
+  count=$((count + 1))
+done
+
+if process_alive "${pid}"; then
+  log_msg "Magpie PID ${pid} 未响应 SIGTERM，发送 SIGKILL"
+  kill -KILL "${pid}" 2>/dev/null || true
+  sleep 1
+fi
+
+if process_alive "${pid}"; then
+  fail "无法停止 Magpie 进程 ${pid}。"
+fi
+
+rm -f "${PID_FILE}"
+log_msg "Magpie 已停止，PID ${pid}"
+exit 0

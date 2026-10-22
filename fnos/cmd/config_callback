@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+# Magpie is configured from its own web page, so there is nothing to apply here.
+exit 0

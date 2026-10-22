@@ -1,0 +1,16 @@
+appname               = magpie
+version               = @VERSION@
+display_name          = Magpie
+desc                  = 统一管理 AI 模型与本地网关：为 Claude Code、Codex 等提供 OpenAI / Anthropic / Gemini 兼容接口
+source                = thirdparty
+platform              = @PLATFORM@
+maintainer            = NasFPK
+maintainer_url        = https://github.com/yetone/magpie
+distributor           = NasFPK
+distributor_url       = https://github.com/yetone/magpie
+desktop_uidir         = ui
+desktop_applaunchname = magpie.main
+service_port          = 3430
+checkport             = true
+ctl_stop              = true
+changelog             = 基于上游 v0.1.1318 的飞牛 fnOS 适配版：Web 管理页、本地 AI 网关、插件支持、内置 CA 根证书与安装时设置访问密钥。

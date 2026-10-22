@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+. "$(dirname -- "$0")/common.sh"
+
+prepare_dirs
+
+if [ -f "${MAGPIE_BIN}" ]; then
+  chmod +x "${MAGPIE_BIN}" 2>/dev/null || true
+  # Keep the access key and provider data, and keep the package authoritative
+  # over the installed version.
+  web_key >/dev/null
+  ensure_auto_update_off
+fi
+
+echo "Magpie 升级完成。"
+exit 0

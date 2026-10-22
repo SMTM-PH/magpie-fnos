@@ -1,0 +1,72 @@
+#!/bin/sh
+set -eu
+
+. "$(dirname -- "$0")/common.sh"
+
+prepare_dirs
+prepare_ca_bundle
+rotate_log
+log_msg "启动请求：gateway=${GATEWAY_PORT} web=${WEB_PORT}"
+
+if [ ! -f "${MAGPIE_BIN}" ]; then
+  fail "安装文件不完整：找不到 ${MAGPIE_BIN}，请重新安装 Magpie。"
+fi
+if [ ! -x "${MAGPIE_BIN}" ]; then
+  chmod +x "${MAGPIE_BIN}" 2>/dev/null || fail "无法设置 Magpie 可执行权限：${MAGPIE_BIN}"
+fi
+
+key=$(web_key)
+export_runtime_env "${key}"
+
+existing_pid=$(read_pid)
+if [ -n "${existing_pid}" ] && is_our_process "${existing_pid}"; then
+  if healthcheck; then
+    log_msg "Magpie 已在运行，PID ${existing_pid}"
+    exit 0
+  fi
+  log_msg "Magpie PID ${existing_pid} 未就绪，重启该进程"
+  kill -TERM "${existing_pid}" 2>/dev/null || true
+  count=0
+  while [ "${count}" -lt 15 ] && process_alive "${existing_pid}"; do
+    sleep 1
+    count=$((count + 1))
+  done
+  if process_alive "${existing_pid}"; then
+    kill -KILL "${existing_pid}" 2>/dev/null || true
+    sleep 1
+  fi
+fi
+rm -f "${PID_FILE}"
+
+if port_busy "${GATEWAY_PORT}"; then
+  fail "端口 ${GATEWAY_PORT} 已被其他程序占用，Magpie 无法启动。"
+fi
+if port_busy "${WEB_PORT}"; then
+  fail "端口 ${WEB_PORT} 已被其他程序占用，Magpie 无法启动。"
+fi
+
+cd "${APP_DEST}" || fail "无法进入应用目录：${APP_DEST}"
+nohup "${MAGPIE_BIN}" serve --web="0.0.0.0:${WEB_PORT}" >> "${LOG_FILE}" 2>&1 &
+pid=$!
+printf '%s\n' "${pid}" > "${PID_FILE}"
+log_msg "Magpie 开始启动，PID ${pid}"
+
+count=0
+while [ "${count}" -lt 30 ]; do
+  if ! process_alive "${pid}"; then
+    rm -f "${PID_FILE}"
+    fail "Magpie 启动失败，请查看日志：${LOG_FILE}"
+  fi
+  if is_our_process "${pid}" && healthcheck; then
+    log_msg "Magpie 启动成功，PID ${pid}"
+    exit 0
+  fi
+  sleep 1
+  count=$((count + 1))
+done
+
+kill -TERM "${pid}" 2>/dev/null || true
+sleep 2
+kill -KILL "${pid}" 2>/dev/null || true
+rm -f "${PID_FILE}"
+fail "Magpie 启动超时，请查看日志：${LOG_FILE}"

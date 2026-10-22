@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+
+. "$(dirname -- "$0")/common.sh"
+
+delete_data=$(printf '%s' "${MAGPIE_FNOS_DELETE_DATA:-}" | tr '[:upper:]' '[:lower:]')
+case "${delete_data}" in
+  1|true|yes|on)
+    case "${PKG_VAR}" in
+      */@appdata/magpie) ;;
+      *)
+        fail "拒绝清理非 Magpie 数据目录：${PKG_VAR}"
+        ;;
+    esac
+    if [ -d "${PKG_VAR}" ]; then
+      find "${PKG_VAR}" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+    fi
+    echo "Magpie 应用数据已删除：${PKG_VAR}"
+    ;;
+  *)
+    echo "已保留 Magpie 应用数据：${PKG_VAR}"
+    ;;
+esac
+
+exit 0

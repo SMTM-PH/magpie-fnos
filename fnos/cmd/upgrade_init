@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+# fnOS stops the running app around an upgrade.
+exit 0

@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+# Nothing to prepare before the package files are applied.
+exit 0

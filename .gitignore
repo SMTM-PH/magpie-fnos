@@ -1,0 +1,8 @@
+/magpie/
+/build/
+/dist/
+/tools/
+/.stage/
+*.log
+.DS_Store
+Thumbs.db

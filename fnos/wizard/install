@@ -1,0 +1,55 @@
+[
+  {
+    "stepTitle": "设置 Magpie 管理页访问密钥",
+    "items": [
+      {
+        "type": "tips",
+        "helpText": "Magpie 管理页可以查看和修改模型 API Key，必须设置访问密钥。"
+      },
+      {
+        "type": "tips",
+        "helpText": "密钥至少 16 位，仅支持字母、数字和 - . _ ~。首次打开 Magpie 时输入一次，浏览器会记住 400 天。"
+      },
+      {
+        "type": "password",
+        "field": "wizard_web_key",
+        "label": "管理页访问密钥",
+        "rules": [
+          {
+            "required": true,
+            "message": "请输入管理页访问密钥"
+          },
+          {
+            "min": 16,
+            "max": 128,
+            "message": "访问密钥需要 16–128 个字符"
+          },
+          {
+            "pattern": "^[A-Za-z0-9._~-]{16,128}$",
+            "message": "仅支持字母、数字和 - . _ ~"
+          }
+        ]
+      },
+      {
+        "type": "password",
+        "field": "wizard_web_key_confirm",
+        "label": "确认访问密钥",
+        "rules": [
+          {
+            "required": true,
+            "message": "请再次输入访问密钥"
+          },
+          {
+            "min": 16,
+            "max": 128,
+            "message": "访问密钥需要 16–128 个字符"
+          },
+          {
+            "pattern": "^[A-Za-z0-9._~-]{16,128}$",
+            "message": "仅支持字母、数字和 - . _ ~"
+          }
+        ]
+      }
+    ]
+  }
+]

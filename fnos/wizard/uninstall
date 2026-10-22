@@ -1,0 +1,17 @@
+[
+  {
+    "stepTitle": "卸载数据处理",
+    "items": [
+      {
+        "type": "tips",
+        "helpText": "默认卸载会保留 Magpie 的应用数据（模型服务商配置、密钥、登录状态和访问密钥），便于重新安装后继续使用。"
+      },
+      {
+        "type": "switch",
+        "field": "MAGPIE_FNOS_DELETE_DATA",
+        "label": "同时删除 Magpie 应用数据",
+        "helpText": "开启后删除 /vol*/@appdata/magpie 下的全部数据，且不可恢复。"
+      }
+    ]
+  }
+]

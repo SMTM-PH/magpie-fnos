@@ -1,0 +1,45 @@
+#!/bin/sh
+set -eu
+
+. "$(dirname -- "$0")/common.sh"
+
+prepare_dirs
+
+if [ ! -f "${MAGPIE_BIN}" ]; then
+  fail "安装文件不完整：找不到 ${MAGPIE_BIN}，请重新安装 Magpie。"
+fi
+chmod +x "${MAGPIE_BIN}" 2>/dev/null || fail "无法设置 Magpie 可执行权限：${MAGPIE_BIN}"
+
+key="${wizard_web_key:-}"
+confirm="${wizard_web_key_confirm:-}"
+unset wizard_web_key wizard_web_key_confirm
+
+if [ -n "${key}" ]; then
+  if [ "${key}" != "${confirm}" ]; then
+    fail "两次输入的访问密钥不一致，请重新安装并确认密钥。"
+  fi
+  if ! valid_key "${key}"; then
+    fail "访问密钥格式不正确：需要 16–128 位，仅支持字母、数字和 - . _ ~。"
+  fi
+  write_key "${key}"
+  echo "Magpie 管理页访问密钥已保存。"
+else
+  existing=""
+  if [ -f "${KEY_FILE}" ]; then
+    existing=$(head -n 1 "${KEY_FILE}" | tr -d '\r\n')
+  fi
+  if valid_key "${existing}"; then
+    echo "已保留原有的 Magpie 管理页访问密钥。"
+  else
+    generated=$(new_key)
+    write_key "${generated}"
+    echo "未设置访问密钥，已生成随机密钥。请通过 SSH 查看："
+    echo "  cat ${KEY_FILE}"
+  fi
+fi
+
+# The FPK, not magpie's own updater, owns the installed version.
+ensure_auto_update_off
+
+echo "Magpie 安装完成。管理页端口 ${WEB_PORT}，网关端口 ${GATEWAY_PORT}。"
+exit 0
