@@ -13,4 +13,4 @@ desktop_applaunchname = magpie.main
 service_port          = 3430
 checkport             = true
 ctl_stop              = true
-changelog             = 基于上游 v0.1.1318 的飞牛 fnOS 适配版：访问密钥最低 6 位（字母+数字），应用内检查更新改为提示 magpie-fnos 新 FPK、不自替换，内置 CA 根证书与插件支持。
+changelog             = 基于上游 v0.1.2121 的飞牛 fnOS 适配版：访问密钥最低 6 位（字母+数字），应用内检查更新改为提示 magpie-fnos 新 FPK、不自替换，内置 CA 根证书与插件支持。

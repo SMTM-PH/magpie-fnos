@@ -9,11 +9,11 @@ on:
       version:
         description: "fnOS package version (X.Y.Z)"
         required: true
-        default: "0.1.1320"
+        default: "0.1.2121"
       upstream_tag:
         description: "Upstream yetone/magpie tag"
         required: true
-        default: "v0.1.1318"
+        default: "v0.1.2121"
 
 permissions:
   contents: write
