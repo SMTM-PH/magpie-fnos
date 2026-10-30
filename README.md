@@ -229,6 +229,7 @@ dist/                  生成的 FPK
 - 应用内检查更新：本地 feed 返回 `9.9.9` 时，接口返回 `state=available`、`stuck=fnos`，未下载二进制；界面显示“Magpie 以飞牛 FPK 安装…”提示，点击打开 Release 页。
 - 默认 GitHub feed（`releases/latest/download/update-feed.json?lang=zh`）可访问；v0.1.2121 检查返回 `state=latest`。
 - 在**没有 `ca-certificates`** 的 Debian 12 容器中，使用包内 CA 成功安装 `@magpie-community/opencode-zen-free-auth`（自动下载 Bun 1.4.2，发现 8 个模型），插件页显示“已安装 · 1”。
+- 插件安装需要能访问 GitHub/npm；本次 0.1.2121 构建容器的 GitHub 下载受限，未复测插件下载（包内 CA 与镜像逻辑未变）。
 - 自定义 `ca-cert.pem` 会与内置根证书合并；移除后恢复。
 - 卸载默认保留数据；选择删除时仅清理 `/vol*/@appdata/magpie`。
 - x86_64 与 aarch64 二进制均为静态链接。
