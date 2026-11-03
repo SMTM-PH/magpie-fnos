@@ -7,7 +7,7 @@ PACKAGE="${ROOT}/fnos"
 OUT="${ROOT}/dist"
 STAGE_ROOT="${ROOT}/build/fpk-stage"
 BIN_DIR="${ROOT}/build"
-VERSION="${VERSION:-0.1.2121}"
+VERSION="${VERSION:-0.1.2775}"
 UPSTREAM_TAG="${UPSTREAM_TAG:-v${VERSION}}"
 DOCKER_IMAGE="${DOCKER_IMAGE:-debian:12-slim}"
 FNPACK_LINUX="${ROOT}/tools/fnpack-linux-amd64"
@@ -65,10 +65,12 @@ build_one() {
 
   mkdir -p "${stage}/app/bin" "${stage}/app/ui/images"
   cp "${BIN_DIR}/magpie-linux-${arch}" "${stage}/app/bin/magpie"
-  cp "${SOURCE}/internal/gui/icon.png" "${stage}/ICON.PNG"
-  cp "${SOURCE}/internal/gui/icon-256.png" "${stage}/ICON_256.PNG"
-  cp "${SOURCE}/internal/gui/icon.png" "${stage}/app/ui/images/icon_64.png"
-  cp "${SOURCE}/internal/gui/icon-256.png" "${stage}/app/ui/images/icon_256.png"
+  for icon in ICON.PNG ICON_256.PNG app/ui/images/icon_64.png app/ui/images/icon_256.png; do
+    [ -f "${stage}/${icon}" ] || {
+      echo "缺少 FPK 图标：${PACKAGE}/${icon}" >&2
+      exit 1
+    }
+  done
   cp "${SOURCE}/LICENSE" "${stage}/app/LICENSE"
 
   sed -e "s/@VERSION@/${VERSION}/g" -e "s/@PLATFORM@/${platform}/g" \
