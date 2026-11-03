@@ -189,6 +189,7 @@ git push origin v0.1.2776
 「设置 → 关于 → 检查」现在查询本仓库 Release 里的 `update-feed.json`：
 
 - 有新 FPK：显示版本和更新说明，点「下载」打开 GitHub Release 页面；
+- 界面会提示这个 magpie 由 fnOS 安装，应由应用中心更新；
 - 不会下载或替换 magpie 二进制，也不会改变应用中心里的版本；
 - 自动检查仍然关闭，只在你点击「检查」时查询；
 - 需要 NAS 能访问 GitHub。不能访问时，可以写入镜像后的 feed 地址并重启：
