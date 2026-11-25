@@ -1,8 +1,8 @@
 diff --git a/internal/gui/web.go b/internal/gui/web.go
-index 48939ab..7855b11 100644
+index 076d11a..3b34234 100644
 --- a/internal/gui/web.go
 +++ b/internal/gui/web.go
-@@ -202,8 +202,9 @@ func (w *Web) Close() {
+@@ -204,8 +204,9 @@ func (w *Web) Close() {
  func ServedGateway() *gateway.Server { return served.Load() }
  
  // webKeyMin is the shortest MAGPIE_WEB_KEY taken: it is all that stands
@@ -12,5 +12,5 @@ index 48939ab..7855b11 100644
 +// upstream's 16 to 6; prefer 12 or more when the page is reachable on a LAN.
 +const webKeyMin = 6
  
- // webCookieAge is how long a browser keeps a fixed key's cookie (the most
- // Chrome allows); a run's own key lives in a cookie that goes with the
+ // webCookieAge is how long a browser keeps the sign-in cookie (the most
+ // Chrome allows), a run's own key's too: a cookie that went with the
